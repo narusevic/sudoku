@@ -1,5 +1,21 @@
 #include "sudoku.h"
 
+void replaceAll(std::string& str, const std::string& from, const std::string& to) 
+{
+    if(from.empty())
+    {
+        return;
+    }
+    
+    size_t start_pos = 0;
+    
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) 
+    {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
+
 void getRow(int* grid, int index, int* nums)
 {
 	int row = index / 9;
@@ -40,6 +56,8 @@ void getGroup(int* grid, int index, int* nums)
 	}
 }
 
+//GENERATION
+
 int possibleNumbers(int* grid, int index/*, int* nums*/)
 {
 	int rowNums[9], colNums[9], groupNums[9];
@@ -72,8 +90,6 @@ void erase(int* grid, int left)
 	for (int i = 0; i < 100000; i++)
 	{
 		int random = rand() % 81;
-
-		cout << possibleNumbers(grid, random) << " " << random << endl;
 
 		if (possibleNumbers(grid, random) >= 8 && *(grid + random) != 0)
 		{
@@ -159,24 +175,74 @@ void generateSudoku(int* grid, int left)
 	erase(grid, left);
 }
 
-void printSudoku(int* grid)
+//END GENERATION
+
+//IO
+
+//option: 0 - cout; 1 - file
+void printSudoku(int* grid, string name)
 {
-	for (int i = 0; i < 9; i++)
+    ofstream fileOut (name.c_str());
+    
+    #define CSTREAM cout
+    #define FSTREAM fileOut
+    
+    string border = "+-----+-----+-----+\n";
+        
+    for (int rg = 0; rg < 3; rg++)
 	{
-		for (int x = 0; x < 9; x++)
+        (name == "" ? CSTREAM : FSTREAM) << border;
+        
+		for (int row = 0; row < 3; row++)
 		{
-			int value = *(grid + 9 * i + x);
-
-			if (value == 0)
-			{
-				cout << "  ";
-			}
-			else
-			{
-				cout << value << " ";
-			}
-		}
-
-		cout << "\n";
+            for (int col = 0; col < 3; col++)
+            {
+                int index = rg * 27 + row * 9 + col * 3;
+                char value1 = grid[index] == 0 ? ' ' : grid[index] + 48;
+                char value2 = grid[index + 1] == 0 ? ' ' : grid[index + 1] + 48;
+                char value3 = grid[index + 2] == 0 ? ' ' : grid[index + 2] + 48;
+                
+                (name == "" ? CSTREAM : FSTREAM) << "|" << value1 << " " << value2 << " " << value3;                
+            }
+            
+            (name == "" ? CSTREAM : FSTREAM) << "|\n";
+        }
 	}
+    
+    (name == "" ? CSTREAM : FSTREAM) << border;
 }
+
+void readSudokuFile(int* grid, string name)
+{
+    ifstream f (name.c_str());
+    string content;
+    
+    int index = 0;
+      
+    while (getline(f, content))
+    {
+        replaceAll(content, "|", " ");   
+        replaceAll(content, "+", "");   
+        replaceAll(content, "-", "");   
+        replaceAll(content, "  ", "0");   
+        
+        for (int i = 0; i < content.length(); i++)
+        {                        
+            if (content[i] > 47 && content[i] < 58)
+            {
+                grid[index] = content[i] - 48;
+                index++;
+            }   
+        }
+                
+        while (index % 9 != 0)
+        {
+            grid[index] = 0;
+            index++;
+        }
+    }
+}
+
+//END IO
+
+

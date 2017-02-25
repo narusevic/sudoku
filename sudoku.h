@@ -1,19 +1,23 @@
 // Sudoku, Lukas Narusevicius, 686 
-#ifndef SUDOKU
-#define SUDOKU
+#ifndef SUDOKU_H
+#define SUDOKU_H
 
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <vector>
+#include <fstream>
+#include <string>
+
 using namespace std;
 
 void generateSudoku(int*, int);
-void printSudoku(int*);
+void printSudoku(int*, string = "");
+void readSudokuFile(int*, string);
 
 #endif
 
 
-02-17 15-17h sudoku reading, planing, generator
-02-25 14-
+//02-17 15-17h sudoku reading, planing, generator
+//02-25 14-15h sudoku finishing generation
+//02-25 19:30-21:50 IO
