@@ -58,7 +58,7 @@ void getGroup(int* grid, int index, int* nums)
 
 //GENERATION
 
-int possibleNumbers(int* grid, int index/*, int* nums*/)
+int notAvailableNumbers(int* grid, int index, int* nums)
 {
 	int rowNums[9], colNums[9], groupNums[9];
 	int current = *(grid + index);
@@ -75,6 +75,7 @@ int possibleNumbers(int* grid, int index/*, int* nums*/)
 		{
 			if (rowNums[i] == d || colNums[i] == d || groupNums[i] == d)
 			{
+                nums[sum] = d;
 				sum++;
 				break;
 			}
@@ -90,8 +91,9 @@ void erase(int* grid, int left)
 	for (int i = 0; i < 100000; i++)
 	{
 		int random = rand() % 81;
-
-		if (possibleNumbers(grid, random) >= 8 && *(grid + random) != 0)
+        int posNums[9];    
+    
+		if (notAvailableNumbers(grid, random, posNums) >= 8 && *(grid + random) != 0)
 		{
 			*(grid + random) = 0;
 			sum--;
@@ -244,5 +246,147 @@ void readSudokuFile(int* grid, string name)
 }
 
 //END IO
+
+//SOLVER
+
+int availableNumbers(int grid[], int index, int nums[])
+{
+	int sum = notAvailableNumbers(grid, index, nums);
+
+	if (sum == 9)
+	{
+		return 0;
+	}
+
+	int it = 0;
+	int nums2[9];
+
+	for (int d = 1; d < 10; d++)
+	{
+		if (d != nums[d - it])
+		{
+			nums2[it] = d;
+			it++;
+		}
+	}
+
+	nums = nums2;
+
+	return 9 - sum;
+}
+
+void rmAvailableInputs(int availableInputs[][9], int index, int temp, int sizes[])
+{
+	int row = index / 9;
+	int col = index % 9;
+	int groupRow = index / 27;
+	int groupColumn = (index % 9) / 3;
+	for (int i = 0; i < 9; i++)
+	{
+		for (int x = 0; x < 9; x++)
+		{
+			if(availableInputs[row * 9 + i][x] == temp && sizes[row * 9 + i] != 0)
+			{
+				availableInputs[row * 9 + i][x] = 0;
+				sizes[row * 9 + i]--;
+			}
+		}
+	}
+
+	for (int i = 0; i < 9; i++)
+	{
+		for (int x = 0; x < 9; x++)
+		{
+			if(availableInputs[i * 9 + col][x] == temp && sizes[i * 9 + col] != 0)
+			{
+				availableInputs[i * 9 + col][x] = 0;
+				sizes[i * 9 + col]--;
+			}
+		}
+	}
+
+	for (int x = 0; x < 3; x++)
+	{
+		for (int y = 0; y < 3; y++)
+		{
+			for (int a = 0; a < 9; a++)
+			{
+				int groupIndex = groupRow * 27 + groupColumn * 3 + x * 9 + y;
+				if(availableInputs[groupIndex][a] == temp && sizes[groupIndex] != 0)
+				{
+					availableInputs[groupIndex][a] = 0;
+					sizes[groupIndex]--;
+				}
+			}
+		}
+	}
+}
+
+void recursion(int grid[], int availableInputs[][9], int sizes[])
+{
+	int minIndex;
+	int minVariants = 9;
+
+	for(int i = 0; i < 81; i++)
+	{
+		if (sizes[i] == 1)
+		{
+			cout << "size 1 " << i << "\n";
+			int temp = 0;
+			
+			for (int d = 0; d < 9; d++)
+			{
+				if (availableInputs[i][d] > 0 && availableInputs[i][d] < 10)
+				{
+					temp = availableInputs[i][d];
+					grid[i] = temp;
+					cout << "TEEEEEEEEEEEEEEMP " << temp << " " << i <<"\n";
+					sizes[i]--;
+					break;
+				}
+			}
+
+			for (int d = 0; d < 9; d++)
+			{
+				availableInputs[i][d] = 0;
+			}
+
+			rmAvailableInputs(availableInputs, i, temp, sizes);
+
+			recursion(grid, availableInputs, sizes);
+		}
+		else if (minVariants > sizes[i])
+		{
+			minIndex = i;
+			minVariants = sizes[i];
+		}
+	}
+}
+
+int solve(int grid[])
+{
+    int availableInputs[81][9];
+    int sizes[81];
+    
+    for (int i = 0; i < 81; i++)
+    {
+        int posNums[9];
+        int sum = availableNumbers(grid, i, posNums);
+        
+        for (int s = 0; s < sum; s++)
+        {
+            availableInputs[i][s] = posNums[s];
+        }
+
+        sizes[i] = sum;
+    }
+
+    recursion(grid, availableInputs, sizes);
+
+    return 1;
+}
+
+//END SOLVER
+
 
 
