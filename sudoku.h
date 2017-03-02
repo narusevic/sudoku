@@ -11,10 +11,10 @@
 
 using namespace std;
 
-void generateSudoku(int*, int);
-void printSudoku(int*, string = "");
-void readSudokuFile(int*, string);
-int solve(int*);
+void generateSudoku(int[], int);
+void printSudoku(int[], string = "");
+void readSudokuFile(int[], string);
+int solve(int[]);
 
 #endif
 
@@ -22,7 +22,7 @@ int solve(int*);
 //02-17 15-17h sudoku reading, planing, generator
 //02-25 14-15h sudoku finishing generation
 //02-25 19:30-21:50 IO
-//02-26 05:30-
+//03-02 10:00
 
 
 //find 

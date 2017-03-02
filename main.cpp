@@ -2,9 +2,6 @@
 
 int main()
 {
-	//int* grid;
-	//grid = (int*)malloc(sizeof(int) * 81);
-    
     int grid[81];
 	int arr[9];
     
@@ -23,8 +20,8 @@ int main()
         cin >> n;
         
         if (n == 1)
-        {
-            generateSudoku(grid, 70);
+        {//todo delete grid;
+            generateSudoku(grid, 1);
             cout << "Generated sudoku.\n";
         }
         if (n == 2)

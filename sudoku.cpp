@@ -16,31 +16,41 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
     }
 }
 
-void getRow(int* grid, int index, int* nums)
+void getRow(int grid[], int index, int nums[])
 {
 	int row = index / 9;
 	int sum = 0;
 
 	for (int x = 0; x < 9; x++)
 	{
-		*(nums + sum) = *(grid + row * 9 + x);
-		sum++;
+		int digit = grid[row * 9 + x];
+
+		if (digit != 0)
+		{
+			nums[digit - 1]= digit;
+			sum++;
+		}
 	}
 }
 
-void getColumn(int* grid, int index, int* nums)
+void getColumn(int grid[], int index, int nums[])
 {
 	int row = index % 9;
 	int sum = 0;
 
 	for (int y = 0; y < 9; y++)
 	{
-		*(nums + sum) = *(grid + row + y * 9);
-		sum++;
+		int digit = grid[y * 9 + row];
+
+		if (digit != 0)
+		{
+			nums[digit - 1]= digit;
+			sum++;
+		}
 	}
 }
 
-void getGroup(int* grid, int index, int* nums)
+void getGroup(int grid[], int index, int nums[])
 {
 	int groupRow = index / 27;
 	int groupColumn = (index % 9) / 3;
@@ -50,42 +60,42 @@ void getGroup(int* grid, int index, int* nums)
 	{
 		for (int y = 0; y < 3; y++)
 		{
-			*(nums + sum) = *(grid + groupRow * 27 + groupColumn * 3 + x * 9 + y);
-			sum++;
+			int digit = grid[groupRow * 27 + groupColumn * 3 + x * 9 + y];
+
+			if (digit != 0)
+			{
+				nums[digit - 1]= digit;
+				sum++;
+			}
 		}
 	}
 }
 
 //GENERATION
 
-int notAvailableNumbers(int* grid, int index, int* nums)
+int notAvailableNumbers(int grid[], int index, int nums[])
 {
-	int rowNums[9], colNums[9], groupNums[9];
-	int current = *(grid + index);
+	fill_n(nums, 9, 0);
+	int current = grid[index];
 
-	getRow(grid, index, rowNums);
-	getColumn(grid, index, colNums);
-	getGroup(grid, index, groupNums);
+	getRow(grid, index, nums);
+	getColumn(grid, index, nums);
+	getGroup(grid, index, nums);
 
 	int sum = 0;
 
-	for (int d = 1; d < 10; d++)
+	for (int i = 0; i < 9; i++)
 	{
-		for (int i = 0; i < 9; i++)
+		if (nums[i] != 0)
 		{
-			if (rowNums[i] == d || colNums[i] == d || groupNums[i] == d)
-			{
-                nums[sum] = d;
-				sum++;
-				break;
-			}
+			sum++;
 		}
-	}
+	}	
 
 	return sum;
 }
 
-void erase(int* grid, int left)
+void erase(int grid[], int left)
 {
 	int sum = 81;
 	for (int i = 0; i < 100000; i++)
@@ -93,9 +103,9 @@ void erase(int* grid, int left)
 		int random = rand() % 81;
         int posNums[9];    
     
-		if (notAvailableNumbers(grid, random, posNums) >= 8 && *(grid + random) != 0)
+		if (notAvailableNumbers(grid, random, posNums) >= 8 && grid[random] != 0)
 		{
-			*(grid + random) = 0;
+			grid[random] = 0;
 			sum--;
 		}
 
@@ -106,27 +116,27 @@ void erase(int* grid, int left)
 	}
 }
 
-void switchLines(int* grid, int a, int b)
+void switchLines(int grid[], int a, int b)
 {
 	for (int i = 0; i < 9; i++)
 	{
-		int temp = *(grid + b * 9 + i);
-		*(grid + b * 9 + i) = *(grid + a * 9 + i);
-		*(grid + a * 9 + i) = temp;
+		int temp = grid[b * 9 + i];
+		grid[b * 9 + i] = grid[a * 9 + i];
+		grid[a * 9 + i] = temp;
 	}
 }
 
-void switchColumns(int* grid, int a, int b)
+void switchColumns(int grid[], int a, int b)
 {
 	for (int i = 0; i < 9; i++)
 	{
-		int temp = *(grid + i * 9 + b);
-		*(grid + i * 9 + b) = *(grid + i * 9 + a);
-		*(grid + i * 9 + a) = temp;
+		int temp = grid[i * 9 + b];
+		grid[i * 9 + b] = grid[i * 9 + a];
+		grid[i * 9 + a] = temp;
 	}
 }
 
-void randomizeGrid(int* grid)
+void randomizeGrid(int grid[])
 {
 	for (int i = 0; i < 1000; i++)
 	{
@@ -150,7 +160,7 @@ void randomizeGrid(int* grid)
 	}
 }
 
-void generateSudoku(int* grid, int left)
+void generateSudoku(int grid[], int left)
 {
 	int start = 1;
 
@@ -158,7 +168,7 @@ void generateSudoku(int* grid, int left)
 	{
 		for (int x = 0; x < 9; x++)
 		{
-			*(grid + i * 9 + x) = (start + x) % 9 + 1;
+			grid[i * 9 + x] = (start + x) % 9 + 1;
 		}
 		start += 3;
 
@@ -182,7 +192,7 @@ void generateSudoku(int* grid, int left)
 //IO
 
 //option: 0 - cout; 1 - file
-void printSudoku(int* grid, string name)
+void printSudoku(int grid[], string name)
 {
     ofstream fileOut (name.c_str());
     
@@ -214,7 +224,7 @@ void printSudoku(int* grid, string name)
     (name == "" ? CSTREAM : FSTREAM) << border;
 }
 
-void readSudokuFile(int* grid, string name)
+void readSudokuFile(int grid[], string name)
 {
     ifstream f (name.c_str());
     string content;
@@ -251,31 +261,27 @@ void readSudokuFile(int* grid, string name)
 
 int availableNumbers(int grid[], int index, int nums[])
 {
-	int sum = notAvailableNumbers(grid, index, nums);
+	int sum = notAvailableNumbers(grid, index, nums);	
 
-	if (sum == 9)
-	{
-		return 0;
-	}
-
-	int it = 0;
-	int nums2[9];
-
-	for (int d = 1; d < 10; d++)
-	{
-		if (d != nums[d - it])
+	for (int d = 0; d < 9; d++)
+	{		
+		if (nums[d] != 0)
 		{
-			nums2[it] = d;
-			it++;
+			nums[d] = 0;
 		}
+		else
+		{
+			nums[d] = d + 1;
+		}
+		cout << nums[d] << " ";
 	}
 
-	nums = nums2;
+	cout << index << " size: " << 9 - sum << endl;
 
 	return 9 - sum;
 }
 
-void rmAvailableInputs(int availableInputs[][9], int index, int temp, int sizes[])
+void rmAvailableInputs(int availableInputs[][9], int index, int inputed, int sizes[])
 {
 	int row = index / 9;
 	int col = index % 9;
@@ -283,43 +289,44 @@ void rmAvailableInputs(int availableInputs[][9], int index, int temp, int sizes[
 	int groupColumn = (index % 9) / 3;
 	for (int i = 0; i < 9; i++)
 	{
-		for (int x = 0; x < 9; x++)
+		int rowIndex = row * 9 + i;
+		if (availableInputs[rowIndex][inputed] != 0)
 		{
-			if(availableInputs[row * 9 + i][x] == temp && sizes[row * 9 + i] != 0)
-			{
-				availableInputs[row * 9 + i][x] = 0;
-				sizes[row * 9 + i]--;
-			}
-		}
+		cout << rowIndex << " ";
+			availableInputs[rowIndex][inputed] = 0;
+			sizes[rowIndex]--;
+		}		
 	}
+			cout <<  " col ";
 
 	for (int i = 0; i < 9; i++)
 	{
-		for (int x = 0; x < 9; x++)
+		int colIndex = i * 9 + col;
+		if (availableInputs[colIndex][inputed] != 0)
 		{
-			if(availableInputs[i * 9 + col][x] == temp && sizes[i * 9 + col] != 0)
-			{
-				availableInputs[i * 9 + col][x] = 0;
-				sizes[i * 9 + col]--;
-			}
-		}
+		cout << colIndex << " ";
+			availableInputs[colIndex][inputed] = 0;
+			sizes[colIndex]--;
+		}	
 	}
+			cout <<  " group ";
 
 	for (int x = 0; x < 3; x++)
 	{
 		for (int y = 0; y < 3; y++)
 		{
-			for (int a = 0; a < 9; a++)
-			{
-				int groupIndex = groupRow * 27 + groupColumn * 3 + x * 9 + y;
-				if(availableInputs[groupIndex][a] == temp && sizes[groupIndex] != 0)
-				{
-					availableInputs[groupIndex][a] = 0;
-					sizes[groupIndex]--;
-				}
+			int groupIndex = groupRow * 27 + groupColumn * 3 + x * 9 + y;	
+			if (availableInputs[groupIndex][inputed] != 0)
+			{	
+			cout << groupIndex << " ";	
+				availableInputs[groupIndex][inputed] = 0;
+				sizes[groupIndex]--;
+				cout << sizes[groupIndex];
 			}
 		}
 	}
+			cout <<  endl;		
+
 }
 
 void recursion(int grid[], int availableInputs[][9], int sizes[])
@@ -327,58 +334,52 @@ void recursion(int grid[], int availableInputs[][9], int sizes[])
 	int minIndex;
 	int minVariants = 9;
 
-	for(int i = 0; i < 81; i++)
+	for(int i = 0; i < 81; i++)//goes through grid
 	{
-		if (sizes[i] == 1)
+		if (sizes[i] == 1)//only one digit available with level 1 check
 		{
-			cout << "size 1 " << i << "\n";
-			int temp = 0;
-			
 			for (int d = 0; d < 9; d++)
-			{
-				if (availableInputs[i][d] > 0 && availableInputs[i][d] < 10)
+			{				
+				if (availableInputs[i][d] != 0)
 				{
-					temp = availableInputs[i][d];
-					grid[i] = temp;
-					cout << "TEEEEEEEEEEEEEEMP " << temp << " " << i <<"\n";
-					sizes[i]--;
-					break;
+					cout << d + 1 << "\n";
+					grid[i] = d + 1;
+					availableInputs[i][d] = 0;
+					sizes[i] = 0;
+
+					rmAvailableInputs(availableInputs, i, d, sizes);
+					recursion(grid, availableInputs, sizes);
+
+					return;
 				}
 			}
-
-			for (int d = 0; d < 9; d++)
-			{
-				availableInputs[i][d] = 0;
-			}
-
-			rmAvailableInputs(availableInputs, i, temp, sizes);
-
-			recursion(grid, availableInputs, sizes);
 		}
-		else if (minVariants > sizes[i])
+
+		if (sizes[i] > 1)
 		{
-			minIndex = i;
-			minVariants = sizes[i];
+			
 		}
 	}
+
+	return;
 }
 
 int solve(int grid[])
 {
     int availableInputs[81][9];
     int sizes[81];
-    
+    fill_n(sizes, 81, 0);
+
     for (int i = 0; i < 81; i++)
     {
-        int posNums[9];
-        int sum = availableNumbers(grid, i, posNums);
-        
-        for (int s = 0; s < sum; s++)
-        {
-            availableInputs[i][s] = posNums[s];
-        }
+    	fill_n(availableInputs[i], 9, 0);
+    	if(grid[i] == 0)
+    	{
+	        int posNums[9];
+	        int sum = availableNumbers(grid, i, availableInputs[i]);
 
-        sizes[i] = sum;
+	        sizes[i] = sum;    		
+    	}
     }
 
     recursion(grid, availableInputs, sizes);
