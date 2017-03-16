@@ -14,7 +14,7 @@ using namespace std;
 void generateSudoku(int[], int);
 void printSudoku(int[], string = "");
 void readSudokuFile(int[], string);
-int solve(int[]);
+bool solve(int[]);
 
 #endif
 
@@ -23,6 +23,7 @@ int solve(int[]);
 //02-25 14-15h sudoku finishing generation
 //02-25 19:30-21:50 IO
 //03-02 10:00-24:00 first level solve
+//03-16 23:00-01:00 backtracking, testing
 
 
 //find

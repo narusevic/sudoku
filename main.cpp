@@ -21,7 +21,7 @@ int main()
         
         if (n == 1)
         {//todo delete grid;
-            generateSudoku(grid, 1);
+            generateSudoku(grid, 50);
             cout << "Generated sudoku.\n";
         }
         if (n == 2)
@@ -63,10 +63,9 @@ int main()
         if (n == 5)
         {
             if (n != -1)
-            {                            
-                int solved = solve(grid);
-                
-                if (solved == 1)
+            {      
+                bool isSolved = solve(grid);        
+                if (isSolved)
                 {
                     cout << "Solved!\n";
                 }

@@ -259,165 +259,57 @@ void readSudokuFile(int grid[], string name)
 
 //SOLVER
 
-int availableNumbers(int grid[], int index, int nums[])
+bool isCorrect(int grid[81], int index, int number)
 {
+	int nums[9];
 	int sum = notAvailableNumbers(grid, index, nums);
 
-	for (int d = 0; d < 9; d++)
+	if (nums[number - 1] != 0)
 	{
-		if (nums[d] != 0)
-		{
-			nums[d] = 0;
-		}
-		else
-		{
-			nums[d] = d + 1;
-		}
-		cout << nums[d] << " ";
-	}
+		return false;
+	}	
 
-	cout << index << " size: " << 9 - sum << endl;
-
-	return 9 - sum;
+	return true;
 }
 
-void rmAvailableInputs(int availableInputs[][9], int index, int inputed, int sizes[])
+bool selectAvailable(int grid[], int &index)
 {
-	int row = index / 9;
-	int col = index % 9;
-	int groupRow = index / 27;
-	int groupColumn = (index % 9) / 3;
-	for (int i = 0; i < 9; i++)
+	for (index = 0; index < 81; index++)
 	{
-		int rowIndex = row * 9 + i;
-		if (availableInputs[rowIndex][inputed] != 0)
+		if (grid[index] == 0)
 		{
-		cout << rowIndex << " ";
-			availableInputs[rowIndex][inputed] = 0;
-			sizes[rowIndex]--;
+			return true;
 		}
 	}
-			cout <<  " col ";
 
-	for (int i = 0; i < 9; i++)
-	{
-		int colIndex = i * 9 + col;
-		if (availableInputs[colIndex][inputed] != 0)
-		{
-		cout << colIndex << " ";
-			availableInputs[colIndex][inputed] = 0;
-			sizes[colIndex]--;
-		}
-	}
-			cout <<  " group ";
-
-	for (int x = 0; x < 3; x++)
-	{
-		for (int y = 0; y < 3; y++)
-		{
-			int groupIndex = groupRow * 27 + groupColumn * 3 + x * 9 + y;
-			if (availableInputs[groupIndex][inputed] != 0)
-			{
-			cout << groupIndex << " ";
-				availableInputs[groupIndex][inputed] = 0;
-				sizes[groupIndex]--;
-				cout << sizes[groupIndex];
-			}
-		}
-	}
-			cout <<  endl;
-
+	return false;
 }
 
-void recursion(int grid[], int availableInputs[][9], int sizes[])
+bool solve(int grid[])
 {
-	int minIndex = -1;
-	int minVariants = 9;
+	int index;
 
-	for(int i = 0; i < 81; i++)//goes through grid
+	if (!selectAvailable(grid, index))
 	{
-		if (sizes[i] == 1)//only one digit available with level 1 check
-		{
-			for (int d = 0; d < 9; d++)
-			{
-				if (availableInputs[i][d] != 0)
-				{
-					cout << d + 1 << "\n";
-					grid[i] = d + 1;
-					availableInputs[i][d] = 0;
-					sizes[i] = 0;
-
-					rmAvailableInputs(availableInputs, i, d, sizes);
-
-					return recursion(grid, availableInputs, sizes);
-				}
-			}
-		}
-
-        if (sizes[i] != 0 && sizes[i] < minVariants)
-        {
-            minIndex = i;
-            minVariants = sizes[i];
-        }
-
-		/*if (sizes[i] > 1)
-		{
-			//surandi tusciu laukelius eilutej stulpeli grupeje
-			//kiekvienam atvejui tuscioj vietoj tikrini ar ten negali buti tam tikro skaiciaus x
-			//jei negali, tai tam i irasome sakiciu x
-			int line[9];
-			int col[9];
-            int groupRow = i / 27;
-            int groupColumn = (i % 9) / 3;
-
-			int sumLine = getLine(grid, i, line);
-			int colLine = geCol(grid, i, line);
-			int groupLine = getGroup(grid, i, line);
-
-			int lineNo = i / 9;
-			int colNo = i % 9;
-			int grouprow =
-
-			for (int l = 0; l < 9; l++)
-			{
-			    if (line[l] == 0 &&)
-                {
-                    int nums[9];
-                    int available = availableNumbers(grid, line * 9 + l; )
-                }
-			}
-		}*/
+		return true;
 	}
 
-    if (minIndex = -1)
-    {
-        return 0;
-    }
+	for (int num = 1; num < 10; num++)
+	{
+		if (isCorrect(grid, index, num))
+		{
+			grid[index] = num;
 
-	return;
-}
+			if (solve(grid))
+			{
+				return true;
+			}
 
-int solve(int grid[])
-{
-    int availableInputs[81][9];
-    int sizes[81];
-    fill_n(sizes, 81, 0);
+			grid[index] = 0;
+		}
+	}
 
-    for (int i = 0; i < 81; i++)
-    {
-    	fill_n(availableInputs[i], 9, 0);
-    	if(grid[i] == 0)
-    	{
-	        int posNums[9];
-	        int sum = availableNumbers(grid, i, availableInputs[i]);
-
-	        sizes[i] = sum;
-    	}
-    }
-
-    recursion(grid, availableInputs, sizes);
-
-    return 1;
+	return false;
 }
 
 //END SOLVER
